@@ -77,3 +77,6 @@ export let codesPrestationsInterpreted = {
 }
 
 
+export let codesMaladie = [
+	"FM ", "M1 ",	"MN ",	"PAT",	"PC ",	"RF ", "AA ", "AV "
+]

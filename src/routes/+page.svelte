@@ -15,6 +15,7 @@ let filterByName = ''
 let prestationDetails = true
 let tagElements = false
 let filterRectificatif = [true, false]
+let filterAbsence = [true, false]
 
 
 $ : filterItem = (prestations) =>  {
@@ -26,6 +27,8 @@ $ : filterItem = (prestations) =>  {
 		item.coreInfos.nom.toUpperCase().indexOf(filterByName.toUpperCase()) > -1 ||
 		item.coreInfos.prenom.toUpperCase().indexOf(filterByName.toUpperCase()) > -1
 		)
+		&&
+		filterAbsence.includes(item.absence)
 	)
 		
 }
@@ -33,15 +36,13 @@ $ : filterItem = (prestations) =>  {
 
 
 let files;
-let expr = "\n008"
-let repl = "<span style='color:blue'>\n008</span>"
 let prestations = []
-
 
 
 </script>
 
 <div class="grid gap-6 mb-6 md:grid-cols-4">
+
   <Label for='large-input' class='block mb-2'>Filtrer par nom
   <Input id="large-input" size="lg" placeholder="Large input" bind:value={filterByName}>
 	  <CloseButton slot="right" on:click={() => filterByName = ''}/>
@@ -52,7 +53,7 @@ let prestations = []
 		<p>test</p>
 	</div>
 
-</Label>
+  </Label>
 
 	<div class='block mb-2'>
 	<Label>
@@ -64,6 +65,19 @@ let prestations = []
 	<Checkbox class="" bind:group={filterRectificatif} value={true}/>
 		Paie rectificative
 	</Label	>
+
+	</div>
+
+	<div class='block mb-2'>
+		<Label>
+			<Checkbox class="" bind:group={filterAbsence} value={true}/>
+			Absence
+		</Label	>
+
+		<Label>
+			<Checkbox class="" bind:group={filterAbsence} value={false}/>
+			Sans absence
+		</Label	>
 
 	</div>
 
@@ -85,8 +99,12 @@ let prestations = []
 		<AccordionItem>
 			<span slot="header">
 
-				<span class:rectificatif={prestation.rectificatif}>{i} {prestation.coreInfos.nom} {prestation.coreInfos.prenom}   {prestation.rectificatif ? "- R" : ""}
+				<span class:rectificatif={prestation.rectificatif}>{i} {prestation.coreInfos.nom} {prestation.coreInfos.prenom}
+					{#if prestation.rectificatif}<span class="tag is-info">Rectificatif</span>{/if}
+					{#if prestation.absence} <span class="tag is-danger">Absence</span> {/if}
 				</span>
+
+				<span class="right">{prestation.periods.startPeriod} -> {prestation.periods.endPeriod}</span>
 
 			</span>
 
@@ -244,4 +262,8 @@ let prestations = []
 		margin : 2em;
 	}
 
+	.right {
+		font-size : 13px;
+		margin-left : 5em;
+	}
 </style>

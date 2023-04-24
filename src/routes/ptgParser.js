@@ -12,20 +12,22 @@
 
 */
 
-import {codesPrestationsBruto, codesPrestationsInterpreted} from './codesGroupS.js'
+import {codesMaladie, codesPrestationsBruto, codesPrestationsInterpreted} from './codesGroupS.js'
 import {toBeTagged} from './009_parsing.js'
 
 
-
 export function splitPrestation(ptgText) {
-
-	console.log(ptgText)
 
 	let ptg = ptgText.split('\n')
 	let intro = []
 	let prestations = []
 	let currentPrestation = []
 	let rectificatif
+	let got003 = false
+	let periods = {
+		startPeriod : undefined,
+		endPeriod : undefined
+	}
 
 	for (let i = 0; i < ptg.length ; i++) {
 
@@ -37,13 +39,15 @@ export function splitPrestation(ptgText) {
 
 		if (line.startsWith('003')) {
 
+			got003 = true
+			periods.startPeriod = reverseDate(line.slice(20,28))
+			periods.endPeriod = reverseDate(line.slice(28, 36))
 			let value = line.slice(11,13)
-			console.log(value)
 
 			if (value === "02") 
 			{
 				rectificatif = false
-			} 
+			}
 			else  if (value === "04")
 			{ 
 				rectificatif = true 
@@ -56,8 +60,13 @@ export function splitPrestation(ptgText) {
 
 		if (line.startsWith('006')) {
 
-			prestations.push(prestationToPush(currentPrestation, rectificatif))
+			if (got003) {
+				got003 = false 
+			} else {
+
+			prestations.push(prestationToPush(currentPrestation, rectificatif, periods))
 			currentPrestation = []
+			}
 		}
 	
 		if (!line.startsWith('003')) {
@@ -66,23 +75,25 @@ export function splitPrestation(ptgText) {
 
 } // end of loop
 
-	prestations.push(prestationToPush(currentPrestation, rectificatif))
+	prestations.push(prestationToPush(currentPrestation, rectificatif, periods))
 	return prestations.slice(1)
 
 }
 
 
-function prestationToPush(current, rectificatif) {
+function prestationToPush(current, rectificatif, periods) {
 
 	let coreInfos = getCoreInfos(current)
 	let splitInfos = splitData(current)
-	console.log(rectificatif)
+	let absence = hasAbsence(splitInfos.workerHours)
 
 	return {
 				original : current,
+				absence,
+				periods,
 				coreInfos,
 				splitInfos,
-				rectificatif
+				rectificatif,
 			}
 }
 
@@ -177,6 +188,22 @@ export function workedHoursDetails(line) {
 	let allInfos = [code, date, duration, value]
 	return allInfos.join(' | ')
 
+}
+
+export function hasAbsence(prestationsCodes) {
+
+	for (let i = 0; i < prestationsCodes.length; i++) {
+		let line = prestationsCodes[i]
+		let code = line.slice(11, 14)
+		if (codesMaladie.includes(code)) {
+			return true
+		}
+	}
+	return false
+}
+
+function reverseDate(date) {
+	return date.slice(6,8) + " - " + date.slice(4,6) + " - " + date.slice(0,4)
 }
 
 export function prestationCodeDetails(line) {
