@@ -59,11 +59,10 @@ export function splitPrestation(ptgText) {
 		}
 
 		if (line.startsWith('006')) {
-
 			if (got003) {
 				got003 = false 
-			} else {
-
+			} else
+			{
 			prestations.push(prestationToPush(currentPrestation, rectificatif, periods))
 			currentPrestation = []
 			}
@@ -76,7 +75,8 @@ export function splitPrestation(ptgText) {
 } // end of loop
 
 	prestations.push(prestationToPush(currentPrestation, rectificatif, periods))
-	return prestations.slice(1)
+	console.log(prestations)
+	return prestations
 
 }
 
