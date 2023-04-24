@@ -1,9 +1,9 @@
 <script>
 
-	import {splitPrestation, tagPrefix, prestationCodeDetails, workedHoursDetails} from './ptgParser'
+	import {splitPrestation, tagPrefix, prestationCodeDetails, workedHoursDetails, contractPrestationDetail} from './ptgParser'
   	import { AccordionItem, Accordion,  Button, Modal } from 'flowbite-svelte'
 
-	import { Label, Input } from 'flowbite-svelte'
+	import { Label, Input, CloseButton } from 'flowbite-svelte'
 
 
 
@@ -33,9 +33,13 @@ let repl = "<span style='color:blue'>\n008</span>"
 
 </script>
 
-<div class='mb-6'>
-  <Label for='large-input' class='block mb-2'>Filtrer par nom</Label>
-  <Input id="large-input" size="lg" placeholder="Large input" bind:value={filterByName}/>
+<div class="grid gap-6 mb-6 md:grid-cols-4">
+  <Label for='large-input' class='block mb-2'>Filtrer par nom
+  <Input id="large-input" size="lg" placeholder="Large input" bind:value={filterByName}>
+	  <CloseButton slot="right" on:click={() => filterByName = ''}/>
+
+	</Input>
+</Label>
 </div>
 
 <input type="file" bind:files>
@@ -131,7 +135,37 @@ let repl = "<span style='color:blue'>\n008</span>"
 			</AccordionItem>
 
 
+<!--  026 Dates   -->
 
+
+			<AccordionItem>
+
+			<span slot="header">Ligne contrat</span>
+
+			{#each prestation.splitInfos.contractLine as info}
+
+				<p style="color:green">{info}</p>
+
+				{#if prestationDetails}
+				<p>{contractPrestationDetail(info)}</p>
+				{/if}
+			
+			{/each}
+
+			</AccordionItem>
+
+
+<!-- Original PTG -->
+
+			<AccordionItem>
+				<span slot="header">PTG original</span>
+
+
+				{#each prestation.original as line}
+				<p>{line}</p>
+				{/each}
+
+			</AccordionItem>
 
 			</Accordion>
 
@@ -168,6 +202,10 @@ let repl = "<span style='color:blue'>\n008</span>"
 	.warning {
 		font-weight: bold;
 		margin-bottom : 3em;
+	}
+
+	.large-input {
+		width : 10em;
 	}
 
 </style>

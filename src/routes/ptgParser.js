@@ -22,6 +22,7 @@ export function splitPrestation(ptgText) {
 	let intro = []
 	let prestations = []
 	let currentPrestation = []
+	let got003 = false
 
 	for (let i = 0; i < ptg.length ; i++) {
 
@@ -31,7 +32,7 @@ export function splitPrestation(ptgText) {
 			continue
 		}
 
-		if (line.startsWith('006')) {
+		if (line.startsWith('003')) {
 
 			let coreInfos = getCoreInfos(currentPrestation)
 			let splitInfos = splitData(currentPrestation)
@@ -43,10 +44,32 @@ export function splitPrestation(ptgText) {
 			})
 
 			currentPrestation = []
+			got003 = true
+
 		}
+
+		if (line.startsWith('006')) {
+
+			if (got003) {
+				got003 = false
+			} else {
+
+			let coreInfos = getCoreInfos(currentPrestation)
+			let splitInfos = splitData(currentPrestation)
+
+			prestations.push( {
+				original : currentPrestation,
+				coreInfos,
+				splitInfos
+			})
+
+			currentPrestation = []
+		} 
+	}
 
 		currentPrestation.push(line)
 	}
+
 	return prestations.slice(1)
 }
 
@@ -169,5 +192,16 @@ export function prestationCodeDetails(line) {
 	let allInfos = [code, quantite, montant, pourcentage]
 	return allInfos.join(' | ')
 
+
+}
+
+export function contractPrestationDetail(line){
+	let startPeriod = line.slice(3, 11)
+	startPeriod= "Début : " + startPeriod.slice(6,8) + " - " + startPeriod.slice(4,6) + " - " + startPeriod.slice(0,4)
+	let endPeriod = line.slice(11, 19)
+	endPeriod= "Fin : " + endPeriod.slice(6,8) + " - " + endPeriod.slice(4,6) + " - " + endPeriod.slice(0,4)
+
+	let allInfos = [startPeriod, endPeriod]
+	return allInfos.join(' | ')
 
 }
