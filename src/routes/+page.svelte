@@ -3,7 +3,7 @@
 	import {splitPrestation, tagPrefix, prestationCodeDetails, workedHoursDetails, contractPrestationDetail} from './ptgParser'
   	import { AccordionItem, Accordion,  Button, Modal } from 'flowbite-svelte'
 
-	import { Label, Input, CloseButton } from 'flowbite-svelte'
+	import { Label, Input, CloseButton, Checkbox } from 'flowbite-svelte'
 
 
 
@@ -14,22 +14,30 @@ FILTERS
 let filterByName = ''
 let prestationDetails = true
 let tagElements = false
+let filterRectificatif = [true, false]
 
-function filterItem(item) {
 
-	return filterByName <= 2 ||
+$ : filterItem = (prestations) =>  {
+
+	return prestations.filter(item => filterRectificatif.includes(item.rectificatif) && 
+
+		(
+			filterByName <= 2 ||
 		item.coreInfos.nom.toUpperCase().indexOf(filterByName.toUpperCase()) > -1 ||
 		item.coreInfos.prenom.toUpperCase().indexOf(filterByName.toUpperCase()) > -1
+		)
+	)
+		
 }
-
-
-
 
 
 
 let files;
 let expr = "\n008"
 let repl = "<span style='color:blue'>\n008</span>"
+let prestations = []
+
+
 
 </script>
 
@@ -39,28 +47,45 @@ let repl = "<span style='color:blue'>\n008</span>"
 	  <CloseButton slot="right" on:click={() => filterByName = ''}/>
 
 	</Input>
+
+	<div class="block">
+		<p>test</p>
+	</div>
+
 </Label>
+
+	<div class='block mb-2'>
+	<Label>
+	<Checkbox class="" bind:group={filterRectificatif} value={false}/>
+		Paie normale
+	</Label	>
+
+	<Label>
+	<Checkbox class="" bind:group={filterRectificatif} value={true}/>
+		Paie rectificative
+	</Label	>
+
+	</div>
+
+
+
 </div>
 
 <input type="file" bind:files>
 
-{#if files && files[0]}
-	<p>
-		{files[0].name}
-	</p>
 
-	{#await files[0].text() then text}
+
+{#if files && files[0]}
+
+{#await files[0].text() then text }
 		
 		<Accordion>
-		{#each splitPrestation(text) as prestation, i }
+		{#each filterItem(splitPrestation(text)) as prestation, i }
 
-		{#if filterByName <= 2 ||
-		prestation.coreInfos.nom.toUpperCase().indexOf(filterByName.toUpperCase()) > -1 ||
-		prestation.coreInfos.prenom.toUpperCase().indexOf(filterByName.toUpperCase()) > -1}
 		<AccordionItem>
 			<span slot="header">
 
-				<span>{i} {prestation.coreInfos.nom} {prestation.coreInfos.prenom}
+				<span class:rectificatif={prestation.rectificatif}>{i} {prestation.coreInfos.nom} {prestation.coreInfos.prenom}   {prestation.rectificatif ? "- R" : ""}
 				</span>
 
 			</span>
@@ -171,14 +196,16 @@ let repl = "<span style='color:blue'>\n008</span>"
 
 
 		</AccordionItem>	
-		{/if}		
 
 		{/each}
 		</Accordion>
 
-	{/await}
+{/await}
 
 {/if}
+
+
+
 
 
 
@@ -206,6 +233,15 @@ let repl = "<span style='color:blue'>\n008</span>"
 
 	.large-input {
 		width : 10em;
+	}
+
+	.rectificatif {
+		color : red
+	}
+
+	.inline {
+		display: inline;
+		margin : 2em;
 	}
 
 </style>

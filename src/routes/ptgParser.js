@@ -11,6 +11,7 @@
 
 
 */
+
 import {codesPrestationsBruto, codesPrestationsInterpreted} from './codesGroupS.js'
 import {toBeTagged} from './009_parsing.js'
 
@@ -18,11 +19,13 @@ import {toBeTagged} from './009_parsing.js'
 
 export function splitPrestation(ptgText) {
 
+	console.log(ptgText)
+
 	let ptg = ptgText.split('\n')
 	let intro = []
 	let prestations = []
 	let currentPrestation = []
-	let got003 = false
+	let rectificatif
 
 	for (let i = 0; i < ptg.length ; i++) {
 
@@ -34,43 +37,53 @@ export function splitPrestation(ptgText) {
 
 		if (line.startsWith('003')) {
 
-			let coreInfos = getCoreInfos(currentPrestation)
-			let splitInfos = splitData(currentPrestation)
+			let value = line.slice(11,13)
+			console.log(value)
 
-			prestations.push( {
-				original : currentPrestation,
-				coreInfos,
-				splitInfos
-			})
-
-			currentPrestation = []
-			got003 = true
-
+			if (value === "02") 
+			{
+				rectificatif = false
+			} 
+			else  if (value === "04")
+			{ 
+				rectificatif = true 
+			}
+			else 
+			{ 
+			rectificatif = undefined 
+			}
 		}
 
 		if (line.startsWith('006')) {
 
-			if (got003) {
-				got003 = false
-			} else {
-
-			let coreInfos = getCoreInfos(currentPrestation)
-			let splitInfos = splitData(currentPrestation)
-
-			prestations.push( {
-				original : currentPrestation,
-				coreInfos,
-				splitInfos
-			})
-
+			prestations.push(prestationToPush(currentPrestation, rectificatif))
 			currentPrestation = []
-		} 
-	}
-
+		}
+	
+		if (!line.startsWith('003')) {
 		currentPrestation.push(line)
-	}
+		}
 
+} // end of loop
+
+	prestations.push(prestationToPush(currentPrestation, rectificatif))
 	return prestations.slice(1)
+
+}
+
+
+function prestationToPush(current, rectificatif) {
+
+	let coreInfos = getCoreInfos(current)
+	let splitInfos = splitData(current)
+	console.log(rectificatif)
+
+	return {
+				original : current,
+				coreInfos,
+				splitInfos,
+				rectificatif
+			}
 }
 
 
@@ -113,7 +126,6 @@ function splitData(prestation) {
 	let prestationInfos = {
 
 	}
-
 
 	for (let line of prestation) {
 		for (let info in typeInfos) {
@@ -164,7 +176,6 @@ export function workedHoursDetails(line) {
 
 	let allInfos = [code, date, duration, value]
 	return allInfos.join(' | ')
-
 
 }
 
