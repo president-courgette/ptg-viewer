@@ -102,6 +102,8 @@ let prestations = []
 				<span class:rectificatif={prestation.rectificatif}>{i} {prestation.coreInfos.nom} {prestation.coreInfos.prenom}
 					{#if prestation.rectificatif}<span class="tag is-info">Rectificatif</span>{/if}
 					{#if prestation.absence} <span class="tag is-danger">Absence</span> {/if}
+					{#if prestation.noPrestation} <span class="tag is-primary">Pas de code presta</span> {/if}
+
 				</span>
 
 				<span class="right">{prestation.periods.startPeriod} -> {prestation.periods.endPeriod}</span>
@@ -138,26 +140,39 @@ let prestations = []
 
 <!--  009 Prestations brutes   -->
 
+
+
+
+			{#if prestation.splitInfos.workerHours}
 			<AccordionItem>
 
-			<span slot="header">Infos de paie</span>
+				<span slot="header">
+					Infos de paie
+				</span>
 
-			{#each prestation.splitInfos.workerHours as info}
+				{#each prestation.splitInfos.workerHours as info}
 
-				<p style="color:blue">{info}</p>
+					<p style="color:blue">{info}</p>
 
-				{#if prestationDetails}
-				<p>{workedHoursDetails(info)}</p>
-				{/if}
-			
-			{/each}
+					{#if prestationDetails}
+					<p>{workedHoursDetails(info)}</p>
+					{/if}
 
+				{/each}
 			</AccordionItem>
+
+			{:else}
+
+				<p class="is-danger is-size-2">Pas d'infos de paie</p>
+
+			{/if}
+
+
+
 
 
 
 <!--  011 Prestations interprétées   -->
-
 
 			<AccordionItem>
 
