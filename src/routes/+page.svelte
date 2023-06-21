@@ -49,8 +49,10 @@ let prestations = []
 
 	</Input>
 
-	<div class="block">
-		<p>test</p>
+	<div class="box">
+		<p>Attention ce viewer n'est pas 100% débuggué.</p>
+		<p>Le bug le plus commun est qu'une prestation soit intégrée dans une autre (1% des cas).</p>
+		<p>On peut double checker cela en lisant le PTG original (onglet à cet effet)</p>
 	</div>
 
   </Label>

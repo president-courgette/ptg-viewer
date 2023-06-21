@@ -36,10 +36,12 @@ export function splitPrestation(ptgText) {
         if (line.length === 0) {
             continue
         }
+        if (line.startsWith('000')) {
+            continue
+        }
 
         if (line.startsWith('003')) {
-
-            got003 = true
+            
             periods.startPeriod = reverseDate(line.slice(20, 28))
             periods.endPeriod = reverseDate(line.slice(28, 36))
             let value = line.slice(11, 13)
@@ -51,15 +53,15 @@ export function splitPrestation(ptgText) {
             } else {
                 rectificatif = undefined
             }
+            continue
         }
 
         if (line.startsWith('006')) {
-            if (got003) {
-                got003 = false
-            } else {
+            if (currentPrestation.length > 1) {
                 prestations.push(prestationToPush(currentPrestation, rectificatif, periods))
-                currentPrestation = []
             }
+            currentPrestation = []
+            
         }
 
         if (!line.startsWith('003')) {
